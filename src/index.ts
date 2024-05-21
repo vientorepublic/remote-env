@@ -1,0 +1,1 @@
+export { remoteEnvProvider } from './server';
