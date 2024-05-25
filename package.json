@@ -1,12 +1,13 @@
 {
   "name": "@vientorepublic/remote-env",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Remote environment variable server/client for Node.js",
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",
     "lint": "eslint --fix src/**/*",
-    "format": "prettier --write \"src/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\"",
+    "publish": "tsc && npm publish"
   },
   "author": "vientorepublic",
   "license": "MIT",
