@@ -1,19 +1,23 @@
 {
-  "name": "remote-env",
-  "version": "1.0.0",
+  "name": "@vientorepublic/remote-env",
+  "version": "0.0.4",
   "description": "Remote environment variable server/client for Node.js",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",
     "lint": "eslint --fix src/**/*",
     "format": "prettier --write \"src/**/*.ts\""
   },
+  "author": "vientorepublic",
+  "license": "MIT",
+  "keywords": [
+    "environment variables",
+    "remote env"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vientorepublic/remote-env.git"
   },
-  "author": "vientorepublic",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/vientorepublic/remote-env/issues"
   },
