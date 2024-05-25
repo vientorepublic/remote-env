@@ -17,9 +17,13 @@ export class remoteEnvClient {
    * @param { port } port
    * @author Doyeon Kim - https://github.com/vientorepublic
    */
-  public connect(address: string, port: number): void {
+  public connect(address: string, port: number, callback?: () => any): void {
     this.client = connect({ host: address, port: port }, () => {
-      consola.success('New remote-env client created!');
+      if (callback) {
+        callback();
+      } else {
+        consola.success('New remote-env client created!');
+      }
     });
   }
 
@@ -27,9 +31,13 @@ export class remoteEnvClient {
    * Close the connection with server.
    * @author Doyeon Kim - https://github.com/vientorepublic
    */
-  public close(): void {
+  public close(callback?: () => any): void {
     this.client.end(() => {
-      consola.info('remote-env client connection closed.');
+      if (callback) {
+        callback();
+      } else {
+        consola.info('remote-env client connection closed.');
+      }
     });
   }
 

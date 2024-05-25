@@ -11,11 +11,6 @@ export class remoteEnvProvider {
   public port: number;
   public addr: string;
   public server: Server;
-  /**
-   * @param { string } addr
-   * @param { number } port
-   * @param { string } path
-   */
   constructor(addr: string, port: number, path?: string) {
     this.path = path;
     this.port = port;
@@ -55,12 +50,26 @@ export class remoteEnvProvider {
    * Create a server from the declared instance.
    * @author Doyeon Kim - https://github.com/vientorepublic
    */
-  public async createServer() {
+  public async createServer(callback?: () => any) {
     this.server.listen(this.port, this.addr, () => {
-      consola.ready({
-        message: `remote-env server listening on ${this.addr}:${this.port}`,
-        badge: true,
-      });
+      if (callback) {
+        callback();
+      } else {
+        consola.ready({
+          message: `remote-env server listening on ${this.addr}:${this.port}`,
+          badge: true,
+        });
+      }
+    });
+  }
+
+  public async close(callback?: () => any) {
+    this.server.close(() => {
+      if (callback) {
+        callback();
+      } else {
+        consola.info('remote-env server closed.');
+      }
     });
   }
 }
