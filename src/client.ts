@@ -8,10 +8,6 @@ export class remoteEnvClient {
   public clientCreated: boolean;
   public client: Socket;
 
-  constructor() {
-    this.clientCreated = false;
-  }
-
   /**
    * Connect to remote-env server.
    * @example const { remoteEnvClient } = require('@vientorepublic/remote-env');

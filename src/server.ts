@@ -11,7 +11,6 @@ export class remoteEnvProvider {
   public server: Server;
   constructor(path?: string) {
     this.path = path;
-    this.serverSpawned = false;
     config({ path: this.path ?? null });
     this.server = createServer((socket) => {
       const address = socket.remoteAddress;
