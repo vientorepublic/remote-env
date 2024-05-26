@@ -14,9 +14,6 @@
     "environment variables",
     "remote env"
   ],
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vientorepublic/remote-env.git"
