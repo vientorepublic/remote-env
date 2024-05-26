@@ -33,4 +33,7 @@ client.connect('127.0.0.1', 8080);
 
 const value = await client.getEnv('KEY');
 console.log(value);
+
+client.close();
+server.close();
 ```
