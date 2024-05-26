@@ -1,6 +1,10 @@
-# remote-env
+# Remote Env
 
-Remote environment variable server/client for Node.js
+**Remote environment variable server/client for Node.js**
+
+This project aims for minimal dependencies & light weight.
+
+Helps you easily share environment variables in various distributed service structures.
 
 # Warning
 
@@ -14,10 +18,13 @@ This project is currently in development.
 npm install @vientorepublic/remote-env
 ```
 
-## Example usage
+## Example usage (Typescript & ESM)
 
 ```typescript
 import { remoteEnvProvider, remoteEnvClient } from '@vientorepublic/remote-env';
+
+// For CommonJS:
+// const { remoteEnvProvider, remoteEnvClient } = require('@vientorepublic/remote-env');
 
 new remoteEnvProvider('127.0.0.1', 8080).createServer();
 
