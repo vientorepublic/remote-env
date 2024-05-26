@@ -46,13 +46,11 @@ export class remoteEnvClient {
    * @returns { Promise<string> }
    * @author Doyeon Kim - https://github.com/vientorepublic
    */
-  public getEnv(key: string): string {
-    let result: string;
-    this.client.write(key);
-    this.client.on('data', (data) => {
-      result = data.toString();
+  public getEnv(key: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.client.write(key);
+      this.client.on('error', (err) => reject(err));
+      this.client.on('data', (data) => resolve(data.toString()));
     });
-    console.log(result);
-    return result;
   }
 }
