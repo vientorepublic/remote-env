@@ -1,5 +1,5 @@
-import { config } from 'dotenv';
 import { createServer, Server } from 'net';
+import { config } from 'dotenv';
 
 /**
  * Remote-env server instance. To open a server, call `createServer()`
@@ -7,9 +7,11 @@ import { createServer, Server } from 'net';
  */
 export class remoteEnvProvider {
   public path?: string;
+  public serverSpawned: boolean;
   public server: Server;
   constructor(path?: string) {
     this.path = path;
+    this.serverSpawned = false;
     config({ path: this.path ?? null });
     this.server = createServer((socket) => {
       const address = socket.remoteAddress;
@@ -52,7 +54,11 @@ export class remoteEnvProvider {
     port: number,
     callback?: () => any,
   ): void {
+    if (!address || !port) {
+      throw new Error('address, port is required.');
+    }
     this.server.listen(port, address, () => {
+      this.serverSpawned = true;
       if (callback) {
         callback();
       } else {
@@ -66,7 +72,11 @@ export class remoteEnvProvider {
    * @author Doyeon Kim - https://github.com/vientorepublic
    */
   public close(callback?: () => any): void {
+    if (!this.serverSpawned) {
+      throw new Error('The server for this instance has not started.');
+    }
     this.server.close(() => {
+      this.serverSpawned = false;
       if (callback) {
         callback();
       } else {

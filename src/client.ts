@@ -5,7 +5,12 @@ import { connect, Socket } from 'net';
  * @author Doyeon Kim - https://github.com/vientorepublic
  */
 export class remoteEnvClient {
+  public clientCreated: boolean;
   public client: Socket;
+
+  constructor() {
+    this.clientCreated = false;
+  }
 
   /**
    * Connect to remote-env server.
@@ -17,7 +22,11 @@ export class remoteEnvClient {
    * @author Doyeon Kim - https://github.com/vientorepublic
    */
   public connect(address: string, port: number, callback?: () => any): void {
+    if (!address || !port) {
+      throw new Error('address, port is required.');
+    }
     this.client = connect({ host: address, port: port }, () => {
+      this.clientCreated = true;
       if (callback) {
         callback();
       } else {
@@ -31,7 +40,11 @@ export class remoteEnvClient {
    * @author Doyeon Kim - https://github.com/vientorepublic
    */
   public close(callback?: () => any): void {
+    if (!this.clientCreated) {
+      throw new Error('The client for this instance has not started.');
+    }
     this.client.end(() => {
+      this.clientCreated = false;
       if (callback) {
         callback();
       } else {
@@ -47,6 +60,9 @@ export class remoteEnvClient {
    * @author Doyeon Kim - https://github.com/vientorepublic
    */
   public getEnv(key: string): Promise<string> {
+    if (!this.clientCreated) {
+      throw new Error('The client for this instance has not started.');
+    }
     return new Promise((resolve, reject) => {
       this.client.write(key);
       this.client.on('error', (err) => reject(err));
