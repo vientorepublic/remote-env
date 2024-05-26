@@ -7,7 +7,6 @@ import { config } from 'dotenv';
  */
 export class remoteEnvProvider {
   public path?: string;
-  public serverSpawned: boolean;
   public server: Server;
   constructor(path?: string) {
     this.path = path;
@@ -57,7 +56,6 @@ export class remoteEnvProvider {
       throw new Error('address, port is required.');
     }
     this.server.listen(port, address, () => {
-      this.serverSpawned = true;
       if (callback) {
         callback();
       } else {
@@ -71,11 +69,7 @@ export class remoteEnvProvider {
    * @author Doyeon Kim - https://github.com/vientorepublic
    */
   public close(callback?: () => any): void {
-    if (!this.serverSpawned) {
-      throw new Error('The server for this instance has not started.');
-    }
     this.server.close(() => {
-      this.serverSpawned = false;
       if (callback) {
         callback();
       } else {
