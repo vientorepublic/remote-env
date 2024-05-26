@@ -1,6 +1,6 @@
 {
   "name": "@vientorepublic/remote-env",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Remote environment variable server/client for Node.js",
   "main": "./dist/index.js",
   "scripts": {
@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/vientorepublic/remote-env#readme",
   "dependencies": {
-    "consola": "^3.2.3",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

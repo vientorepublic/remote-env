@@ -1,6 +1,5 @@
 import { config } from 'dotenv';
 import { createServer, Server } from 'net';
-import consola from 'consola';
 
 /**
  * Remote-env server instance. To open a server, call `createServer()`
@@ -8,19 +7,15 @@ import consola from 'consola';
  */
 export class remoteEnvProvider {
   public path?: string;
-  public port: number;
-  public addr: string;
   public server: Server;
-  constructor(addr: string, port: number, path?: string) {
+  constructor(path?: string) {
     this.path = path;
-    this.port = port;
-    this.addr = addr;
     config({ path: this.path ?? null });
     this.server = createServer((socket) => {
       const address = socket.remoteAddress;
       const port = socket.remotePort;
-      consola.success(`New remote-env client connected!`);
-      consola.info(`IP Address: ${address}, Port: ${port}`);
+      console.log('New remote-env client connected!');
+      console.log(`IP Address: ${address}, Port: ${port}`);
 
       socket.on('data', (data) => {
         const key = data.toString();
@@ -31,7 +26,7 @@ export class remoteEnvProvider {
       });
 
       socket.on('close', () => {
-        consola.info('remote-env client disconnected.');
+        console.log('remote-env client disconnected.');
       });
     });
   }
@@ -47,28 +42,35 @@ export class remoteEnvProvider {
   }
 
   /**
-   * Create a server from the declared instance.
+   * Create a new remote-env server.
+   * @param { string } address
+   * @param { number } port
    * @author Doyeon Kim - https://github.com/vientorepublic
    */
-  public async createServer(callback?: () => any) {
-    this.server.listen(this.port, this.addr, () => {
+  public createServer(
+    address: string,
+    port: number,
+    callback?: () => any,
+  ): void {
+    this.server.listen(port, address, () => {
       if (callback) {
         callback();
       } else {
-        consola.ready({
-          message: `remote-env server listening on ${this.addr}:${this.port}`,
-          badge: true,
-        });
+        console.log(`remote-env server listening on ${address}:${port}`);
       }
     });
   }
 
-  public async close(callback?: () => any) {
+  /**
+   * Close remote-env server.
+   * @author Doyeon Kim - https://github.com/vientorepublic
+   */
+  public close(callback?: () => any): void {
     this.server.close(() => {
       if (callback) {
         callback();
       } else {
-        consola.info('remote-env server closed.');
+        console.log('remote-env server closed.');
       }
     });
   }
