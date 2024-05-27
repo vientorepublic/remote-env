@@ -15,6 +15,8 @@ Helps you easily share environment variables in various distributed service stru
 
 This project is currently in development.
 
+**If you expose remote-env to an external network, you must specify an authentication method for security purposes.**
+
 # How to use
 
 ## Install
@@ -25,13 +27,14 @@ npm install @vientorepublic/remote-env
 
 ## Example usage (Typescript & ESM)
 
-```typescript
+```javascript
 import { remoteEnvProvider, remoteEnvClient } from '@vientorepublic/remote-env';
 
 // For CommonJS:
 // const { remoteEnvProvider, remoteEnvClient } = require('@vientorepublic/remote-env');
 
-new remoteEnvProvider('127.0.0.1', 8080).createServer();
+const server = new remoteEnvProvider();
+server.createServer('127.0.0.1', 8080);
 
 const client = new remoteEnvClient();
 client.connect('127.0.0.1', 8080);
@@ -41,4 +44,17 @@ console.log(value);
 
 client.close();
 server.close();
+```
+
+## Protect with password authentication
+
+**(Strongly Recommanded)**
+
+```javascript
+const server = new remoteEnvProvider();
+server.createServer('127.0.0.1', 8080, {
+  auth: {
+    password: 'my-supersecret-password@!',
+  },
+});
 ```

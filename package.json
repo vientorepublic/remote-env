@@ -1,6 +1,6 @@
 {
-  "name": "@vientorepublic/remote-env",
-  "version": "0.1.1",
+  "name": "remote-env",
+  "version": "0.1.2",
   "description": "Remote environment variable server/client for Node.js",
   "main": "./dist/index.js",
   "scripts": {

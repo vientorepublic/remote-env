@@ -1,5 +1,6 @@
 import { createServer, Server } from 'net';
 import { config } from 'dotenv';
+import { IServerConfig } from './types';
 
 /**
  * Remote-env server instance. To open a server, call `createServer()`
@@ -50,6 +51,7 @@ export class remoteEnvProvider {
   public createServer(
     address: string,
     port: number,
+    config?: IServerConfig,
     callback?: () => any,
   ): void {
     if (!address || !port) {
