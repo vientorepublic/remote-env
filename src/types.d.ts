@@ -1,3 +1,11 @@
 export interface IServerConfig {
-  password?: string;
+  auth?: {
+    password: string;
+  };
+}
+
+export interface IClientConfig {
+  auth?: {
+    password: string;
+  };
 }

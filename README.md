@@ -5,7 +5,7 @@
 
 # Remote Env
 
-**Remote environment variable server/client for Node.js**
+**Remote [Dotenv](https://www.npmjs.com/package/dotenv) server/client for Node.js**
 
 This project aims for minimal dependencies & light weight.
 

@@ -7,8 +7,9 @@ import { IServerConfig } from './types';
  * @author Doyeon Kim - https://github.com/vientorepublic
  */
 export class remoteEnvProvider {
-  public path?: string;
   public server: Server;
+  public path?: string;
+  private password?: string;
   constructor(path?: string) {
     this.path = path;
     config({ path: this.path ?? null });
@@ -18,11 +19,14 @@ export class remoteEnvProvider {
       console.log('New remote-env client connected!');
       console.log(`IP Address: ${address}, Port: ${port}`);
 
-      socket.on('data', (data) => {
-        const key = data.toString();
-        const value = this.getEnv(key);
-        if (value) {
-          socket.write(value);
+      socket.on('data', (e) => {
+        const data = e.toString().split(':');
+        if (this.password && this.password === data[0]) {
+          const key = data[1];
+          const value = this.getEnv(key);
+          if (value) {
+            socket.write(value);
+          }
         }
       });
 
@@ -56,6 +60,14 @@ export class remoteEnvProvider {
   ): void {
     if (!address || !port) {
       throw new Error('address, port is required.');
+    }
+    if (config && config.auth) {
+      this.password = config.auth.password;
+    } else {
+      console.warn(
+        '[WARN]',
+        'Authentication method is not defined. Use it caution.',
+      );
     }
     this.server.listen(port, address, () => {
       if (callback) {
