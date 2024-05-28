@@ -57,4 +57,11 @@ server.createServer('127.0.0.1', 8080, {
     password: 'my-supersecret-password@!',
   },
 });
+
+const client = new remoteEnvClient();
+client.connect('127.0.0.1', 8080, {
+  auth: {
+    password: 'my-supersecret-password@!',
+  },
+});
 ```
