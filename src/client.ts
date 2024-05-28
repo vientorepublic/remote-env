@@ -1,4 +1,5 @@
 import { connect, Socket } from 'net';
+import { IClientConfig } from './types';
 
 /**
  * Remote-env client instance. To connect to a server, call `connect()` and provide server information in the parameter.
@@ -6,6 +7,7 @@ import { connect, Socket } from 'net';
  */
 export class remoteEnvClient {
   public client: Socket;
+  private password?: string;
 
   /**
    * Connect to remote-env server.
@@ -16,10 +18,16 @@ export class remoteEnvClient {
    * @param { port } port
    * @author Doyeon Kim - https://github.com/vientorepublic
    */
-  public connect(address: string, port: number, callback?: () => any): void {
+  public connect(
+    address: string,
+    port: number,
+    config?: IClientConfig,
+    callback?: () => any,
+  ): void {
     if (!address || !port) {
       throw new Error('address, port is required.');
     }
+    if (config && config.auth) this.password = config.auth.password;
     this.client = connect({ host: address, port: port }, () => {
       if (callback) {
         callback();
@@ -51,7 +59,14 @@ export class remoteEnvClient {
    */
   public getEnv(key: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.client.write(key);
+      // [0] = Password
+      // [1] = Key
+      const data: string[] = [];
+      if (this.password) {
+        data.push(this.password);
+      }
+      data.push(key);
+      this.client.write(data.join(':'));
       this.client.on('error', (err) => reject(err));
       this.client.on('data', (data) => resolve(data.toString()));
     });
