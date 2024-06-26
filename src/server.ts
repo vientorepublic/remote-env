@@ -1,3 +1,4 @@
+import * as crypto from 'node:crypto';
 import { createServer, Server } from 'net';
 import { config } from 'dotenv';
 import { IServerConfig } from './types';
@@ -34,9 +35,13 @@ export class remoteEnvProvider {
           if (data.length === 2) key = data[1];
 
           const value = this.getEnv(key);
-          if (value) {
-            socket.write(value);
-          }
+
+          let encryptedValue: string;
+
+          if (value && data.length === 3 && publicKey)
+            encryptedValue = crypto.publicEncrypt(publicKey, Buffer.from(value, 'utf8')).toString('base64');
+
+          if (value) socket.write(encryptedValue ? value : encryptedValue);
         }
       });
 
