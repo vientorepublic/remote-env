@@ -71,4 +71,30 @@ export class remoteEnvClient {
       this.client.on('data', (data) => resolve(data.toString()));
     });
   }
+
+  /** 
+   * Requests the environment variable value corresponding to the provided key. but it returns encrypted value.
+   * @param { string } key
+   * @param { string } publicKey
+   * @returns { Promise<string> }
+   * @author CY32 https://github.com/cy32768
+   */
+  public getEnvEncrypted(key: string, publicKey: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      // [0] = Password
+      // [1] = Public Key
+      // [2] = Key
+      const data: string[] = [];
+
+      if (this.password) {
+        data.push(this.password)
+      }
+      data.push(publicKey);
+      data.push(key);
+
+      this.client.write(data.join(':'));
+      this.client.on('error', (err) => reject(err));
+      this.client.on('data', (data) => resolve(data.toString()));
+    });
+  }
 }
