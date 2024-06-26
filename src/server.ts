@@ -21,8 +21,18 @@ export class remoteEnvProvider {
 
       socket.on('data', (e) => {
         const data = e.toString().split(':');
+
         if (this.password && this.password === data[0]) {
-          const key = data[1];
+          let key: string;
+          let publicKey: string;
+
+          if (data.length === 3) {
+            publicKey = data[1];
+            key = data[2];
+          }
+
+          if (data.length === 2) key = data[1];
+
           const value = this.getEnv(key);
           if (value) {
             socket.write(value);
