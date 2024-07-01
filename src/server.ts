@@ -41,7 +41,7 @@ export class remoteEnvProvider {
           if (value && data.length === 3 && publicKey)
             encryptedValue = crypto.publicEncrypt(publicKey, Buffer.from(value, 'utf8')).toString('base64');
 
-          if (value) socket.write(encryptedValue ? value : encryptedValue);
+          if (value) socket.write(encryptedValue ? encryptedValue : value);
         }
       });
 
