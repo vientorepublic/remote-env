@@ -1,3 +1,4 @@
+// TODO : Add encrypt options
 export interface IServerConfig {
   auth?: {
     password: string;

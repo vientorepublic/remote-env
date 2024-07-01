@@ -7,6 +7,7 @@ import { IServerConfig } from './types';
  * Remote-env server instance. To open a server, call `createServer()`
  * @author Doyeon Kim - https://github.com/vientorepublic
  */
+// TODO : Add encrypt options (Encryption Padding)
 export class remoteEnvProvider {
   public server: Server;
   public path?: string;
@@ -17,6 +18,8 @@ export class remoteEnvProvider {
     this.server = createServer((socket) => {
       const address = socket.remoteAddress;
       const port = socket.remotePort;
+
+      // TODO : add support for third-party logger
       console.log('New remote-env client connected!');
       console.log(`IP Address: ${address}, Port: ${port}`);
 
@@ -24,22 +27,27 @@ export class remoteEnvProvider {
         const data = e.toString().split(':');
 
         if (this.password && this.password === data[0]) {
-          let key: string;
-          let publicKey: string;
+          let key: string; // dotenv key from data
+          let publicKey: string; // public rsa key from data
 
-          if (data.length === 3) {
+          if (data.length === 3) { // -> if client requested for encrypted response value
             publicKey = data[1];
             key = data[2];
           }
 
           if (data.length === 2) key = data[1];
 
+          // default of value (not encrypted)
           const value = this.getEnv(key);
 
+          // encrypted value
           let encryptedValue: string;
 
-          if (value && data.length === 3 && publicKey)
-            encryptedValue = crypto.publicEncrypt(publicKey, Buffer.from(value, 'utf8')).toString('base64');
+
+          if (value && data.length === 3 && publicKey) // -> if data has a public key
+            // TODO : create a separated method for encrypting
+            encryptedValue = crypto.publicEncrypt(publicKey, Buffer.from(value, 'utf8'))
+              .toString('base64'); // -> do encrypt of value
 
           if (value) socket.write(encryptedValue ? encryptedValue : value);
         }

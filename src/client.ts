@@ -46,6 +46,7 @@ export class remoteEnvClient {
       if (callback) {
         callback();
       } else {
+        // TODO : add support for third-party logger
         console.log('remote-env client connection closed.');
       }
     });
@@ -74,12 +75,12 @@ export class remoteEnvClient {
 
   /** 
    * Requests the environment variable value corresponding to the provided key. but it returns encrypted value.
-   * @param { string } key
-   * @param { string } publicKey
+   * @param { string } envKey
+   * @param { string } publicKey Public Key for encryption 
    * @returns { Promise<string> }
    * @author CY32 https://github.com/cy32768
    */
-  public getEnvEncrypted(key: string, publicKey: string): Promise<string> {
+  public getEnvEncrypted(envKey: string, publicKey: string): Promise<string> {
     return new Promise((resolve, reject) => {
       // [0] = Password
       // [1] = Public Key
@@ -90,7 +91,7 @@ export class remoteEnvClient {
         data.push(this.password)
       }
       data.push(publicKey);
-      data.push(key);
+      data.push(envKey);
 
       this.client.write(data.join(':'));
       this.client.on('error', (err) => reject(err));
