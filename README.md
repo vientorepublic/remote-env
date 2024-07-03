@@ -17,6 +17,10 @@ This project is currently in development.
 
 **If you expose remote-env to an external network, you must specify an authentication method for security purposes.**
 
+# Supported versions
+
+- ES2020 (Node.js 14~latest)
+
 # How to use
 
 ## Install
@@ -76,6 +80,9 @@ client.connect('127.0.0.1', 8080, {
   },
 });
 ```
+
+- Generate RSA 2048Bit Private Key: `openssl genrsa -out private_key.pem 2048`
+- Extract public key from private key: `openssl rsa -in private_key.pem -out public_key.pem -pubout`
 
 ## Protect with password authentication
 

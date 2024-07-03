@@ -24,10 +24,13 @@ export class remoteEnvProvider {
       console.log(`IP Address: ${address}, Port: ${port}`);
 
       socket.on('data', (e) => {
+        // [0]: Password Type (PWD, RSA, PLAIN)
+        // [1]?: Password
+        // [2]: Dotenv Key
         const data = e.toString().split(':');
         const value: string[] = [];
 
-        if (data.length === 0) return;
+        if (data.length <= 1 || data.length > 3) return;
 
         if (data[0] === 'PLAIN') {
           value.push('PLAIN', this.getEnv(data[1]));
