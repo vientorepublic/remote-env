@@ -73,7 +73,7 @@ const publicKey = fs.readFileSync("example_public_key.pem", "utf8");
 const privateKey = fs.readFileSync("example_private_key.pem","utf8");
 
 const value = await client.getEnvEncrypted('KEY', publicKey);
-const decrypted = crypto.privateDecrypt(privKey, Buffer.from(value, 'base64')).toString();
+const decrypted = crypto.privateDecrypt(privateKey, Buffer.from(value, 'base64')).toString();
 
 console.log(decrypted);
 ```
