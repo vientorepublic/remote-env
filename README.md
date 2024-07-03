@@ -86,14 +86,14 @@ client.connect('127.0.0.1', 8080, {
 const server = new remoteEnvProvider();
 server.createServer('127.0.0.1', 8080, {
   auth: {
-    encryption: {},
+    password: 'my-supersecret-password@!',
   },
 });
 
 const client = new remoteEnvClient();
 client.connect('127.0.0.1', 8080, {
   auth: {
-    encryption: {},
+    password: 'my-supersecret-password@!',
   },
 });
 ```
