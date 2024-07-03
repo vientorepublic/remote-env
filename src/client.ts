@@ -46,7 +46,6 @@ export class remoteEnvClient {
       if (callback) {
         callback();
       } else {
-        // TODO : add support for third-party logger
         console.log('remote-env client connection closed.');
       }
     });

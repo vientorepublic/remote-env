@@ -7,7 +7,6 @@ import { IServerConfig } from './types';
  * Remote-env server instance. To open a server, call `createServer()`
  * @author Doyeon Kim - https://github.com/vientorepublic
  */
-// TODO : Add encrypt options (Encryption Padding)
 export class remoteEnvProvider {
   public server: Server;
   public path?: string;
@@ -19,7 +18,6 @@ export class remoteEnvProvider {
       const address = socket.remoteAddress;
       const port = socket.remotePort;
 
-      // TODO : add support for third-party logger
       console.log('New remote-env client connected!');
       console.log(`IP Address: ${address}, Port: ${port}`);
 
@@ -45,7 +43,6 @@ export class remoteEnvProvider {
 
 
           if (value && data.length === 3 && publicKey) // -> if data has a public key
-            // TODO : create a separated method for encrypting
             encryptedValue = crypto.publicEncrypt(publicKey, Buffer.from(value, 'utf8'))
               .toString('base64'); // -> do encrypt of value
 
