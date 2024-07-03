@@ -46,22 +46,54 @@ client.close();
 server.close();
 ```
 
-## Protect with password authentication
+## Protect with rsa public key encryption
 
-**(Strongly Recommanded)**
+> [!NOTE]  
+> This option is highly recommended as it encrypts your data with the RSA algorithm.
 
 ```javascript
+import { readFileSync } from 'node:fs';
+
+const publicKey = readFileSync('public_key.pem', 'utf8');
+const privateKey = readFileSync('private_key.pem', 'utf8');
+
 const server = new remoteEnvProvider();
 server.createServer('127.0.0.1', 8080, {
   auth: {
-    password: 'my-supersecret-password@!',
+    encryption: {
+      publicKey,
+    },
   },
 });
 
 const client = new remoteEnvClient();
 client.connect('127.0.0.1', 8080, {
   auth: {
-    password: 'my-supersecret-password@!',
+    encryption: {
+      publicKey,
+      privateKey,
+    },
+  },
+});
+```
+
+## Protect with password authentication
+
+> [!WARNING]  
+> Password Authentication will be deprecated. This option does not encrypt your data.
+
+```javascript
+const server = new remoteEnvProvider();
+server.createServer('127.0.0.1', 8080, {
+  auth: {
+    encryption: {},
+  },
+});
+
+const client = new remoteEnvClient();
+client.connect('127.0.0.1', 8080, {
+  auth: {
+    encryption: {},
   },
 });
 ```
