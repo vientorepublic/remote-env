@@ -87,7 +87,7 @@ export class remoteEnvClient {
    * @returns { Promise<string> }
    * @author Doyeon Kim - https://github.com/vientorepublic
    */
-  public getEnv(key: string): Promise<string> {
+  public getEnv(key: string): Promise<string | null> {
     return new Promise((resolve, reject) => {
       // [0]: Password Type (PWD, RSA, PLAIN)
       // [1]?: Password
@@ -105,8 +105,9 @@ export class remoteEnvClient {
       this.client.on('error', (err) => reject(err));
       this.client.on('data', (e) => {
         const data = e.toString().split(':');
-        if (data[0] === 'PLAIN') resolve(data[1]);
-        if (data[0] === 'RSA') {
+        if (data[0] === 'ERROR') resolve(null);
+        else if (data[0] === 'PLAIN') resolve(data[1]);
+        else if (data[0] === 'RSA') {
           const payload = Buffer.from(data[1], 'base64');
           const decrypted = privateDecrypt(
             {
@@ -116,6 +117,8 @@ export class remoteEnvClient {
             payload,
           ).toString();
           resolve(decrypted);
+        } else {
+          resolve(null);
         }
       });
     });

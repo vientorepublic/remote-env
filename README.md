@@ -2,6 +2,7 @@
 [![GitHub tag](https://img.shields.io/github/tag/vientorepublic/remote-env?include_prereleases=&sort=semver&color=blue)](https://github.com/vientorepublic/remote-env/releases/)
 [![stars - remote-env](https://img.shields.io/github/stars/vientorepublic/remote-env?style=social)](https://github.com/vientorepublic/remote-env)
 [![forks - remote-env](https://img.shields.io/github/forks/vientorepublic/remote-env?style=social)](https://github.com/vientorepublic/remote-env)
+[![Build](https://github.com/vientorepublic/remote-env/actions/workflows/nodejs.yml/badge.svg)](https://github.com/vientorepublic/remote-env/actions/workflows/nodejs.yml)
 
 # Remote Env
 
@@ -17,9 +18,9 @@ This project is currently in development.
 
 **If you expose remote-env to an external network, you must specify an authentication method for security purposes.**
 
-# Supported versions
+# CI Build Versions
 
-- ES2020 (Node.js 14~latest)
+- ES2020 Node.js 20.x
 
 # How to use
 
@@ -43,6 +44,7 @@ server.createServer('127.0.0.1', 8080);
 const client = new remoteEnvClient();
 client.connect('127.0.0.1', 8080);
 
+// getEnv(key: string): Promise<string | null>
 const value = await client.getEnv('KEY');
 console.log(value);
 
