@@ -33,15 +33,26 @@ export class remoteEnvProvider {
         if (data.length <= 1 || data.length > 3) return;
 
         if (data[0] === 'PLAIN') {
-          value.push('PLAIN', this.getEnv(data[1]));
+          const env = this.getEnv(data[1]);
+          if (!env) {
+            socket.write('ERROR');
+            return;
+          }
+          value.push('PLAIN', env);
           socket.write(value.join(':'));
         }
+
+        const env = this.getEnv(data[2]);
+        if (!env) {
+          socket.write('ERROR');
+          return;
+        }
         if (data[0] === 'PWD' && this.password === data[1]) {
-          value.push('PLAIN', this.getEnv(data[2]));
+          value.push('PLAIN', env);
           socket.write(value.join(':'));
         }
         if (data[0] === 'RSA' && data.length === 3) {
-          const valueBuf = Buffer.from(this.getEnv(data[2]), 'utf-8');
+          const valueBuf = Buffer.from(env, 'utf-8');
           const encrypted = publicEncrypt(
             {
               key: data[1],
