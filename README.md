@@ -17,9 +17,9 @@ This project is currently in development.
 
 **If you expose remote-env to an external network, you must specify an authentication method for security purposes.**
 
-# Supported versions
+# CI Build Versions
 
-- ES2020 (Node.js 14~latest)
+- ES2020 Node.js 20.x
 
 # How to use
 
