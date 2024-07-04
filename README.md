@@ -43,6 +43,7 @@ server.createServer('127.0.0.1', 8080);
 const client = new remoteEnvClient();
 client.connect('127.0.0.1', 8080);
 
+// getEnv(key: string): Promise<string | null>
 const value = await client.getEnv('KEY');
 console.log(value);
 
