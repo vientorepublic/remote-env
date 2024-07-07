@@ -4,8 +4,6 @@ import { privateDecrypt, constants, createDecipheriv } from 'crypto';
 
 /**
  * Remote-env client instance. To connect to a server, call `connect()` and provide server information in the parameter.
- *
- * Usage: https://github.com/vientorepublic/remote-env?tab=readme-ov-file#example-usage-typescript--esm
  * @author Doyeon Kim - https://github.com/vientorepublic
  */
 export class remoteEnvClient {
@@ -83,6 +81,7 @@ export class remoteEnvClient {
   public getEnv(key: string): Promise<string | null> {
     return new Promise((resolve, reject) => {
       // [0]: Request Type (CHA-POLY, RSA)
+      // [1]?: RSA Public Key
       // [2]: Dotenv Key
       const data: string[] = [];
       if (this.key) {

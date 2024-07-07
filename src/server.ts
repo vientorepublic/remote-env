@@ -10,8 +10,6 @@ import { config } from 'dotenv';
 
 /**
  * Remote-env server instance. To open a server, call `createServer()`
- *
- * Usage: https://github.com/vientorepublic/remote-env?tab=readme-ov-file#example-usage-typescript--esm
  * @author Doyeon Kim - https://github.com/vientorepublic
  */
 export class remoteEnvProvider {
@@ -29,20 +27,21 @@ export class remoteEnvProvider {
       console.log(`IP Address: ${address}, Port: ${port}`);
 
       socket.on('data', (e) => {
-        // [0]: Request Type (CHA-POLY, RSA)
+        // [0]: Response Type (CHA-POLY, RSA)
+        // [1]?: RSA Public Key
         // [2]: Dotenv Key
         const data = e.toString().split(':');
         const value: string[] = [];
 
         if (data.length <= 1 || data.length > 3) return;
 
-        const env = this.getEnv(data[1]);
-        if (!env) {
-          socket.write('ERROR');
-          return;
-        }
-
+        // ChaCha20-Poly1305 Encryption
         if (data[0] === 'CHA-POLY') {
+          const env = this.getEnv(data[1]);
+          if (!env) {
+            socket.write('ERROR');
+            return;
+          }
           const iv = randomBytes(12);
           const cipher = createCipheriv('chacha20-poly1305', this.key, iv, {
             authTagLength: 16,
@@ -56,7 +55,14 @@ export class remoteEnvProvider {
           value.push('CHA-POLY', final);
           socket.write(value.join(':'));
         }
+
+        // RSA Public Key Encryption
         if (data[0] === 'RSA' && data.length === 3) {
+          const env = this.getEnv(data[2]);
+          if (!env) {
+            socket.write('ERROR');
+            return;
+          }
           const valueBuf = Buffer.from(env, 'utf-8');
           const encrypted = publicEncrypt(
             {
@@ -107,7 +113,7 @@ export class remoteEnvProvider {
     if (config.auth.key && config.auth.rsa) {
       throw new Error('key and rsa options cannot be used together.');
     }
-    if (config.auth.key.length !== 32) {
+    if (config.auth.key && config.auth.key.length !== 32) {
       throw new Error('ChaCha20-Poly1305 must have a key length of 32 bytes');
     }
     this.key = config.auth.key;
