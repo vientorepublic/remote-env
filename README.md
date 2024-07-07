@@ -55,7 +55,7 @@ client.connect('127.0.0.1', 8080, {
 });
 ```
 
-- Generate RSA 2048Bit Private Key: `openssl genrsa -out private_key.pem 2048`
+- Generate rsa 2048bit private key: `openssl genrsa -out private_key.pem 2048`
 - Extract public key from private key: `openssl rsa -in private_key.pem -out public_key.pem -pubout`
 
 ## Example: Protect with chacha20-poly1305 encryption
@@ -80,7 +80,7 @@ client.connect('127.0.0.1', 8080, {
 });
 ```
 
-- Generate ChaCha20-Poly1305 32Byte Key: `openssl rand 32 > secretkey`
+- Generate ChaCha20-Poly1305 32byte key: `openssl rand 32 > secretkey`
 
 # License
 
