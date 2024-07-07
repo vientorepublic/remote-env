@@ -36,8 +36,8 @@ export class remoteEnvClient {
     if (config.auth.key && config.auth.rsa) {
       throw new Error('key and rsa options cannot be used together.');
     }
-    if (config.auth.key) {
-      this.key = config.auth.key;
+    if (config.auth.key && config.auth.key.length !== 32) {
+      throw new Error('ChaCha20-Poly1305 must have a key length of 32 bytes');
     }
     const option = config.auth.rsa;
     if (option) {
