@@ -12,75 +12,11 @@ This project aims for minimal dependencies & light weight.
 
 Helps you easily share environment variables in various distributed service structures.
 
-# CI Build Versions
-
-- ES2020 Node.js 20.x
-
 # How to use
 
-## Install
+Please refer to this wiki.
 
-```
-npm install @vientorepublic/remote-env
-```
-
-> [!NOTE]  
-> For security purposes, you must specify an encryption method. The plain text method is no longer supported.
-
-## Example: Protect with rsa public key encryption
-
-```javascript
-import { readFileSync } from 'node:fs';
-
-const publicKey = readFileSync('public_key.pem', 'utf8');
-const privateKey = readFileSync('private_key.pem', 'utf8');
-
-const server = new remoteEnvProvider();
-server.createServer('127.0.0.1', 8080, {
-  auth: {
-    rsa: {
-      publicKey,
-    },
-  },
-});
-
-const client = new remoteEnvClient();
-client.connect('127.0.0.1', 8080, {
-  auth: {
-    rsa: {
-      publicKey,
-      privateKey,
-    },
-  },
-});
-```
-
-- Generate rsa 2048bit private key: `openssl genrsa -out private_key.pem 2048`
-- Extract public key from private key: `openssl rsa -in private_key.pem -out public_key.pem -pubout`
-
-## Example: Protect with chacha20-poly1305 encryption
-
-```javascript
-import { readFileSync } from 'node:fs';
-
-const key = Buffer.from(readFileSync('secretkey'));
-
-const server = new remoteEnvProvider();
-server.createServer('127.0.0.1', 8080, {
-  auth: {
-    key,
-  },
-});
-
-const client = new remoteEnvClient();
-client.connect('127.0.0.1', 8080, {
-  auth: {
-    key,
-  },
-});
-```
-
-- Generate ChaCha20-Poly1305 32byte key: `openssl rand 32 > secretkey`
+https://github.com/vientorepublic/remote-env/wiki/Remote-Env-Docs
 
 # License
 
