@@ -42,11 +42,6 @@ export class remoteEnvProvider {
           return;
         }
 
-        if (data[0] === 'PLAIN') {
-          value.push('PLAIN', env);
-          socket.write(value.join(':'));
-        }
-
         if (data[0] === 'CHA-POLY') {
           const iv = randomBytes(12);
           const cipher = createCipheriv('chacha20-poly1305', this.key, iv, {
