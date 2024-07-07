@@ -38,7 +38,7 @@ const privateKey = readFileSync('private_key.pem', 'utf8');
 const server = new remoteEnvProvider();
 server.createServer('127.0.0.1', 8080, {
   auth: {
-    encryption: {
+    rsa: {
       publicKey,
     },
   },
@@ -47,7 +47,7 @@ server.createServer('127.0.0.1', 8080, {
 const client = new remoteEnvClient();
 client.connect('127.0.0.1', 8080, {
   auth: {
-    encryption: {
+    rsa: {
       publicKey,
       privateKey,
     },
