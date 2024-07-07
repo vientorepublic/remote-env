@@ -1,7 +1,7 @@
 export interface IServerConfig {
   auth?: {
-    password?: string;
-    encryption?: {
+    key?: Buffer;
+    rsa?: {
       publicKey: string;
     };
   };
@@ -9,8 +9,8 @@ export interface IServerConfig {
 
 export interface IClientConfig {
   auth?: {
-    password?: string;
-    encryption?: {
+    key?: Buffer;
+    rsa?: {
       publicKey: string;
       privateKey: string;
     };

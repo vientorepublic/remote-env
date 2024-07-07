@@ -1,18 +1,21 @@
-import { publicEncrypt, constants } from 'node:crypto';
+import {
+  publicEncrypt,
+  constants,
+  createCipheriv,
+  randomBytes,
+} from 'node:crypto';
 import { createServer, Server } from 'net';
 import { IServerConfig } from './types';
 import { config } from 'dotenv';
 
 /**
  * Remote-env server instance. To open a server, call `createServer()`
- *
- * Usage: https://github.com/vientorepublic/remote-env?tab=readme-ov-file#example-usage-typescript--esm
  * @author Doyeon Kim - https://github.com/vientorepublic
  */
 export class remoteEnvProvider {
   public server: Server;
   public path?: string;
-  private password?: string;
+  private key?: Buffer;
   constructor(path?: string) {
     this.path = path;
     config({ path: this.path ?? null });
@@ -24,34 +27,42 @@ export class remoteEnvProvider {
       console.log(`IP Address: ${address}, Port: ${port}`);
 
       socket.on('data', (e) => {
-        // [0]: Password Type (PWD, RSA, PLAIN)
-        // [1]?: Password
+        // [0]: Response Type (CHA-POLY, RSA)
+        // [1]?: RSA Public Key
         // [2]: Dotenv Key
         const data = e.toString().split(':');
         const value: string[] = [];
 
         if (data.length <= 1 || data.length > 3) return;
 
-        if (data[0] === 'PLAIN') {
+        // ChaCha20-Poly1305 Encryption
+        if (data[0] === 'CHA-POLY') {
           const env = this.getEnv(data[1]);
           if (!env) {
             socket.write('ERROR');
             return;
           }
-          value.push('PLAIN', env);
+          const iv = randomBytes(12);
+          const cipher = createCipheriv('chacha20-poly1305', this.key, iv, {
+            authTagLength: 16,
+          });
+          const encrypted = Buffer.concat([
+            cipher.update(env, 'utf8'),
+            cipher.final(),
+          ]);
+          const tag = cipher.getAuthTag();
+          const final = Buffer.concat([iv, tag, encrypted]).toString('hex');
+          value.push('CHA-POLY', final);
           socket.write(value.join(':'));
         }
 
-        const env = this.getEnv(data[2]);
-        if (!env) {
-          socket.write('ERROR');
-          return;
-        }
-        if (data[0] === 'PWD' && this.password === data[1]) {
-          value.push('PLAIN', env);
-          socket.write(value.join(':'));
-        }
+        // RSA Public Key Encryption
         if (data[0] === 'RSA' && data.length === 3) {
+          const env = this.getEnv(data[2]);
+          if (!env) {
+            socket.write('ERROR');
+            return;
+          }
           const valueBuf = Buffer.from(env, 'utf-8');
           const encrypted = publicEncrypt(
             {
@@ -90,19 +101,23 @@ export class remoteEnvProvider {
   public createServer(
     address: string,
     port: number,
-    config?: IServerConfig,
+    config: IServerConfig,
     callback?: () => any,
   ): void {
     if (!address || !port) {
       throw new Error('address, port is required.');
     }
-    if (config && config.auth) {
-      this.password = config.auth.password;
-    } else {
-      console.warn(
-        '[WARN]',
-        'Authentication method is not defined. Use it caution.',
-      );
+    if (!config.auth) {
+      throw new Error('Authentication options are not set');
+    }
+    if (config.auth.key && config.auth.rsa) {
+      throw new Error('key and rsa options cannot be used together.');
+    }
+    if (config.auth.key) {
+      if (config.auth.key.length !== 32) {
+        throw new Error('ChaCha20-Poly1305 must have a key length of 32 bytes');
+      }
+      this.key = config.auth.key;
     }
     this.server.listen(port, address, () => {
       if (callback) {

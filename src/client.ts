@@ -1,16 +1,14 @@
 import { connect, Socket } from 'net';
 import { IClientConfig } from './types';
-import { privateDecrypt, constants } from 'crypto';
+import { privateDecrypt, constants, createDecipheriv } from 'crypto';
 
 /**
  * Remote-env client instance. To connect to a server, call `connect()` and provide server information in the parameter.
- *
- * Usage: https://github.com/vientorepublic/remote-env?tab=readme-ov-file#example-usage-typescript--esm
  * @author Doyeon Kim - https://github.com/vientorepublic
  */
 export class remoteEnvClient {
   public client: Socket;
-  private password?: string;
+  private key?: Buffer;
   private publicKey?: string;
   private privateKey?: string;
 
@@ -26,35 +24,31 @@ export class remoteEnvClient {
   public connect(
     address: string,
     port: number,
-    config?: IClientConfig,
+    config: IClientConfig,
     callback?: () => any,
   ): void {
     if (!address || !port) {
       throw new Error('address, port is required.');
     }
-    if (config.auth) {
-      if (config.auth.password && config.auth.encryption) {
-        throw new Error(
-          'Password and encryption options cannot be used together.',
-        );
+    if (!config.auth) {
+      throw new Error('Authentication options are not set');
+    }
+    if (config.auth.key && config.auth.rsa) {
+      throw new Error('key and rsa options cannot be used together.');
+    }
+    if (config.auth.key) {
+      if (config.auth.key.length !== 32) {
+        throw new Error('ChaCha20-Poly1305 must have a key length of 32 bytes');
       }
-      // Plain text based password protection
-      if (config.auth.password) {
-        console.warn(
-          '[WARN]',
-          'Password protection will be deprecated. Specify the RSA Public/Private Key in the `encryption` option.',
-        );
-        this.password = config.auth.password;
-      }
-      // RSA public key encryption
-      const option = config.auth.encryption;
-      if (option) {
-        if (option.publicKey && option.privateKey) {
-          this.publicKey = option.publicKey;
-          this.privateKey = option.privateKey;
-        } else {
-          throw new Error('RSA Public/Private Key is missing.');
-        }
+      this.key = config.auth.key;
+    }
+    const option = config.auth.rsa;
+    if (option) {
+      if (option.publicKey && option.privateKey) {
+        this.publicKey = option.publicKey;
+        this.privateKey = option.privateKey;
+      } else {
+        throw new Error('RSA Public/Private Key is missing.');
       }
     }
 
@@ -89,16 +83,16 @@ export class remoteEnvClient {
    */
   public getEnv(key: string): Promise<string | null> {
     return new Promise((resolve, reject) => {
-      // [0]: Password Type (PWD, RSA, PLAIN)
-      // [1]?: Password
+      // [0]: Request Type (CHA-POLY, RSA)
+      // [1]?: RSA Public Key
       // [2]: Dotenv Key
       const data: string[] = [];
-      if (this.password) {
-        data.push('PWD', this.password);
+      if (this.key) {
+        data.push('CHA-POLY');
       } else if (this.publicKey) {
         data.push('RSA', this.publicKey);
       } else {
-        data.push('PLAIN');
+        throw new Error('Authentication options are not set');
       }
       data.push(key);
       this.client.write(data.join(':'));
@@ -106,7 +100,6 @@ export class remoteEnvClient {
       this.client.on('data', (e) => {
         const data = e.toString().split(':');
         if (data[0] === 'ERROR') resolve(null);
-        else if (data[0] === 'PLAIN') resolve(data[1]);
         else if (data[0] === 'RSA') {
           const payload = Buffer.from(data[1], 'base64');
           const decrypted = privateDecrypt(
@@ -116,6 +109,27 @@ export class remoteEnvClient {
             },
             payload,
           ).toString();
+          resolve(decrypted);
+        } else if (data[0] === 'CHA-POLY') {
+          const decipher = createDecipheriv(
+            'chacha20-poly1305',
+            this.key,
+            Buffer.from(data[1].substring(0, 24), 'hex'),
+            {
+              authTagLength: 16,
+            },
+          );
+          decipher.setAuthTag(Buffer.from(data[1].substring(24, 56), 'hex'));
+          const decrypted = [
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            decipher.update(
+              Buffer.from(data[1].substring(56), 'hex'),
+              'binary',
+              'utf-8',
+            ),
+            decipher.final('utf-8'),
+          ].join('');
           resolve(decrypted);
         } else {
           resolve(null);
