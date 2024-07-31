@@ -30,8 +30,8 @@ export class remoteEnvClient {
     if (!address || !port) {
       throw new Error('address, port is required.');
     }
-    if (!config.auth) {
-      throw new Error('Authentication options are not set');
+    if (!config || !config.auth) {
+      throw new Error('Required options are not set');
     }
     if (config.auth.key && config.auth.rsa) {
       throw new Error('key and rsa options cannot be used together.');
