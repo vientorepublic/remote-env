@@ -27,9 +27,6 @@ export class remoteEnvProvider {
       console.log(`IP Address: ${address}, Port: ${port}`);
 
       socket.on('data', (e) => {
-        // [0]: Response Type (CHA-POLY, RSA)
-        // [1]?: RSA Public Key
-        // [2]: Dotenv Key
         const data = e.toString().split(':');
         const value: string[] = [];
 
