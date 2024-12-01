@@ -1,6 +1,10 @@
-import { connect, Socket } from 'net';
-import { IClientConfig } from './types';
 import { privateDecrypt, constants, createDecipheriv } from 'crypto';
+import type { IClientConfig } from './types';
+import { connect, Socket } from 'net';
+
+// [ Encryption Type ]
+// 0: RSA
+// 1: ChaCha20-Poly1305
 
 /**
  * Remote-env client instance. To connect to a server, call `connect()` and provide server information in the parameter.
@@ -25,16 +29,16 @@ export class remoteEnvClient {
     address: string,
     port: number,
     config: IClientConfig,
-    callback?: () => any,
+    callback?: () => void,
   ): void {
     if (!address || !port) {
-      throw new Error('address, port is required.');
+      throw new Error('address, port is required');
     }
     if (!config || !config.auth) {
       throw new Error('Required options are not set');
     }
     if (config.auth.key && config.auth.rsa) {
-      throw new Error('key and rsa options cannot be used together.');
+      throw new Error('key and rsa options cannot be used together');
     }
     if (config.auth.key) {
       if (config.auth.key.length !== 32) {
@@ -65,7 +69,7 @@ export class remoteEnvClient {
    * Close the connection with server.
    * @author Doyeon Kim - https://github.com/vientorepublic
    */
-  public close(callback?: () => any): void {
+  public close(callback?: () => void): void {
     this.client.end(() => {
       if (callback) {
         callback();
@@ -83,14 +87,14 @@ export class remoteEnvClient {
    */
   public getEnv(key: string): Promise<string | null> {
     return new Promise((resolve, reject) => {
-      // [0]: Request Type (CHA-POLY, RSA)
+      // [0]: Encryption Type
       // [1]?: RSA Public Key
       // [2]: Dotenv Key
       const data: string[] = [];
       if (this.key) {
-        data.push('CHA-POLY');
+        data.push('1'); // ChaCha20-Poly1305
       } else if (this.publicKey) {
-        data.push('RSA', this.publicKey);
+        data.push('0', this.publicKey); // RSA
       } else {
         throw new Error('Authentication options are not set');
       }
@@ -100,7 +104,8 @@ export class remoteEnvClient {
       this.client.on('data', (e) => {
         const data = e.toString().split(':');
         if (data[0] === 'ERROR') resolve(null);
-        else if (data[0] === 'RSA') {
+        else if (data[0] === '0') {
+          // 0: RSA
           const payload = Buffer.from(data[1], 'base64');
           const decrypted = privateDecrypt(
             {
@@ -110,7 +115,8 @@ export class remoteEnvClient {
             payload,
           ).toString();
           resolve(decrypted);
-        } else if (data[0] === 'CHA-POLY') {
+        } else if (data[0] === '1') {
+          // 1: ChaCha20-Poly1305
           const decipher = createDecipheriv(
             'chacha20-poly1305',
             this.key,

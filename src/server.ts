@@ -4,9 +4,13 @@ import {
   createCipheriv,
   randomBytes,
 } from 'node:crypto';
+import type { IServerConfig } from './types';
 import { createServer, Server } from 'net';
-import { IServerConfig } from './types';
 import { config } from 'dotenv';
+
+// [ Encryption Type ]
+// 0: RSA
+// 1: ChaCha20-Poly1305
 
 /**
  * Remote-env server instance. To open a server, call `createServer()`
@@ -32,8 +36,8 @@ export class remoteEnvProvider {
 
         if (data.length <= 1 || data.length > 3) return;
 
-        // ChaCha20-Poly1305 Encryption
-        if (data[0] === 'CHA-POLY') {
+        // 1: ChaCha20-Poly1305
+        if (data[0] === '1') {
           const env = this.getEnv(data[1]);
           if (!env) {
             socket.write('ERROR');
@@ -49,12 +53,12 @@ export class remoteEnvProvider {
           ]);
           const tag = cipher.getAuthTag();
           const final = Buffer.concat([iv, tag, encrypted]).toString('hex');
-          value.push('CHA-POLY', final);
+          value.push('1', final);
           socket.write(value.join(':'));
         }
 
-        // RSA Public Key Encryption
-        if (data[0] === 'RSA' && data.length === 3) {
+        // 0: RSA
+        if (data[0] === '0' && data.length === 3) {
           const env = this.getEnv(data[2]);
           if (!env) {
             socket.write('ERROR');
@@ -68,7 +72,7 @@ export class remoteEnvProvider {
             },
             valueBuf,
           ).toString('base64');
-          value.push('RSA', encrypted);
+          value.push('0', encrypted);
           socket.write(value.join(':'));
         }
       });
@@ -80,7 +84,7 @@ export class remoteEnvProvider {
   }
 
   /**
-   * Get env variable from [Dotenv](https://www.npmjs.com/package/dotenv).
+   * Get local env variable
    * @param { string } key
    * @returns { string | undefined }
    * @author Doyeon Kim - https://github.com/vientorepublic
